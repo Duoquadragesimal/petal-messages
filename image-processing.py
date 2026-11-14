@@ -6,11 +6,12 @@ import cv2
 import numpy as np
 
 # 1. Load the image
-image_path = ''
+image_path = 'origamiFlower.jpg'
 image = cv2.imread(image_path)
 
 if image is None:
     raise FileNotFoundError("Image not found. Check the file path.")
+
 
 # 2. Convert to grayscale and blur to reduce noise
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -38,7 +39,7 @@ if lines is not None:
 
     # Optional: Draw the lines on the original image for visualization
     for line in lines:
-        x1, y1, x2, y2 = line[0]
+        x1, y1, x2, y2 = line
         cv2.line(image, (x1, y1), (x2, y2), (0, 0, 255), 2)
 
     # Display the result
