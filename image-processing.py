@@ -16,3 +16,4 @@ my_image.save('Bicycle_Copy.jpg');
 
 # 4. View the whole folder
 ip.show_folder()
+
