@@ -12,6 +12,7 @@ image = cv2.imread(image_path)
 if image is None:
     raise FileNotFoundError("Image not found. Check the file path.")
 
+
 # 2. Convert to grayscale and blur to reduce noise
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 blurred = cv2.GaussianBlur(gray, (5, 5), 0)
