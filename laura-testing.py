@@ -19,7 +19,7 @@ transform = transforms.Compose([
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
 ])
 
-train_data_path = "dataset" # Path to your dataset
+train_data_path = "test-dataset" # Path to your dataset
 image_list = []
 label_list = []
 
