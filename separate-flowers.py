@@ -149,11 +149,12 @@ def separate_flowers(image_path):
             350
         )
 
-    cv2.waitKey(0)
     cv2.destroyAllWindows()
 
-    return flowers
+    return [
+    flowers[0:3],
+    flowers[3:6],
+    flowers[6:9]
+    ]
     
 flowers = separate_flowers("multipleFlowers.jpeg")
-
-print("Number of flowers:", len(flowers))
