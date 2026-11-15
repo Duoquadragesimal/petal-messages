@@ -65,10 +65,30 @@ def separate_flowers(image_path):
         if cv2.contourArea(contour) > min_area
     ]
 
-    # Sort flowers from left to right
+    # Sort flowers from top to bottom
     flower_contours.sort(
-        key=lambda contour: cv2.boundingRect(contour)[0]
+        key=lambda contour: cv2.boundingRect(contour)[1]
     )
+
+    # Divide the flowers into 3 rows
+    rows = [[], [], []]
+
+    for i, contour in enumerate(flower_contours):
+        row_index = min(i // 3, 2)
+        rows[row_index].append(contour)
+
+    # Sort each row from left to right
+    for row in rows:
+        row.sort(
+            key=lambda contour: cv2.boundingRect(contour)[0]
+        )
+
+    # Flatten the rows back into one list
+    flower_contours = [
+        contour
+        for row in rows
+        for contour in row
+    ]
 
     print(f"Detected {len(flower_contours)} flowers")
 
@@ -115,8 +135,10 @@ def separate_flowers(image_path):
         flowers.append(flower_crop)
 
         # Save the flower image
+        row_number = (i // 3) + 1
+        flower_number = (i % 3) + 1
         cv2.imwrite(
-            f"flower_{i+1}.png",
+            f"row_{row_number}_flower_{flower_number}.png",
             flower_crop
         )
 
