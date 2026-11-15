@@ -1,11 +1,9 @@
 import cv2
 import numpy as np
-def detect_origami_petals(image_path):
-    # 1. Load the image
-    image = cv2.imread(image_path)
-    if image is None:
-        print("Error: Could not load image.")
-        return
+def detect_origami_petals(image):
+    if image is None or image.size == 0:
+        print("Error: Invalid image.")
+        return []
 
     # 2. Convert to grayscale and apply Gaussian blur to smooth out minor paper textures
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -63,6 +61,10 @@ def detect_origami_petals(image_path):
                         petal_count += 1
 
     #order the petals
+    if len(petals) != 5:
+        print(f"Expected 5 petals, detected {len(petals)}")
+        return []
+
     combined_list = []
     for i in range(5):
         combined_list.append((petal_coords[i][0],petal_coords[i][1], petals[i]))
@@ -80,6 +82,8 @@ def detect_origami_petals(image_path):
     if combined_list[3][0] > combined_list[4][0]:
         combined_list[3], combined_list[4] = combined_list[4], combined_list[3]
 
+    # Extract the petal images in their new order
+    petals = [item[2] for item in combined_list]
     print(f"Detected approximately {petal_count} petal-like regions.")
 
     # 6. Display the results
@@ -96,9 +100,10 @@ def detect_origami_petals(image_path):
     #cv2.imshow('Petal8', petals[7])
     #cv2.imshow('Petal9', petals[8])
 
-    cv2.waitKey(0)
     cv2.destroyAllWindows()
+    return petals
 
 
-
-detect_origami_petals('flowerCopy.png')
+if __name__ == "__main__":
+    image = cv2.imread("flowerCopy.png")
+    detect_origami_petals(image)

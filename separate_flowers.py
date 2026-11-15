@@ -58,7 +58,7 @@ def separate_flowers(image_path):
     )
 
     # Ignore small regions
-    min_area = 5000
+    min_area = 2000
 
     flower_contours = [
         contour for contour in contours
@@ -89,7 +89,7 @@ def separate_flowers(image_path):
         for row in rows
         for contour in row
     ]
-
+    show_image("Flower Mask", mask)
     print(f"Detected {len(flower_contours)} flowers")
 
     # 5. Extract each flower
@@ -148,7 +148,6 @@ def separate_flowers(image_path):
             flower_crop,
             350
         )
-
     cv2.destroyAllWindows()
 
     return [
@@ -157,4 +156,5 @@ def separate_flowers(image_path):
     flowers[6:9]
     ]
     
-flowers = separate_flowers("multipleFlowers.jpeg")
+if __name__ == "__main__":
+    flowers = separate_flowers("multipleFlowers.jpeg")

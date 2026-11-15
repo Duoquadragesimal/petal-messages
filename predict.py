@@ -1,15 +1,24 @@
-
+from PIL import Image
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torchvision import transforms
 from PIL import Image
+import cv2
 
 # Settings
 image_size = 28
 class_list_ = ["folded-petal", "unfolded-petal"]
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
+test_transform = transforms.Compose([
+    transforms.Resize((image_size, image_size)),
+    transforms.ToTensor(),
+    transforms.Normalize(
+        mean=[0.485, 0.456, 0.406],
+        std=[0.229, 0.224, 0.225]
+    )
+])
 
 class ImageClassifier(nn.Module):
     def __init__(self, num_classes, input_size=(image_size, image_size), channels=3):
@@ -74,30 +83,35 @@ model.eval()
 
 
 # Prediction function
-def predict_petal(image_path='test.png'):
 
-    img = Image.open(image_path).convert('RGB')
+def predict_petal(petal_image):
 
-    transform = transforms.Compose([
-        transforms.Resize((image_size, image_size)),
-        transforms.ToTensor(),
-        transforms.Normalize(
-            mean=[0.485, 0.456, 0.406],
-            std=[0.229, 0.224, 0.225]
-        )
-    ])
+    # Convert OpenCV image (BGR) to RGB
+    rgb_image = cv2.cvtColor(
+        petal_image,
+        cv2.COLOR_BGR2RGB
+    )
 
-    image_tensor = transform(img).unsqueeze(0).to(device)
+    # Convert NumPy array to PIL image
+    img = Image.fromarray(rgb_image)
+
+    # Apply the same transformations used during training
+    img = test_transform(img)
+
+    # Add batch dimension
+    img = img.unsqueeze(0).to(device)
+
+    # Predict the petal class
+    model.eval()
 
     with torch.no_grad():
-        outputs = model(image_tensor)
-        _, predicted = torch.max(outputs, 1)
+        output = model(img)
+        predicted = torch.argmax(output, dim=1).item()
 
-        prediction = class_list_[predicted.item()]
-
-    return prediction
+    return class_list_[predicted]
 
 
 # Run prediction when this file is executed
 if __name__ == "__main__":
-    print(predict_petal())
+    image = cv2.imread("flowerCopy.png")
+    print(predict_petal(image))
