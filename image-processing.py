@@ -2,49 +2,61 @@ print('Importing packages...')
 import numpy as np
 import cv2
 
-import cv2
-import numpy as np
+def detect_origami_petals(image_path):
+    # 1. Load the image
+    image = cv2.imread(image_path)
+    if image is None:
+        print("Error: Could not load image.")
+        return
 
-# 1. Load the image
-image_path = 'origamiFlower.jpg'
-image = cv2.imread(image_path)
+    # 2. Convert to grayscale and apply Gaussian blur to smooth out minor paper textures
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    blurred = cv2.GaussianBlur(gray, (7, 7), 2)
 
-if image is None:
-    raise FileNotFoundError("Image not found. Check the file path.")
+    # 3. Perform Canny edge detection
+    edges = cv2.Canny(blurred, 40, 200)
 
+    # 4. Find contours from the edge-detected image
+    contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-# 2. Convert to grayscale and blur to reduce noise
-gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+    # 5. Filter contours to isolate petals
+    petal_overlay = image.copy()
+    petal_count = 0
+    petals = []
 
-# 3. Apply Canny Edge Detection
-# Thresholds 50 and 150 determine edge sensitivity
-edges = cv2.Canny(blurred, 50, 150, apertureSize=3)
+    for contour in contours:
+        # Calculate area to filter out tiny specks or the entire flower border
+        area = cv2.contourArea(contour)
 
-# 4. Apply Probabilistic Hough Line Transform
-# Parameters: image, rho, theta, threshold, minLineLength, maxLineGap
-lines = cv2.HoughLinesP(
-    edges,
-    rho=1,
-    theta=np.pi / 180,
-    threshold=100,
-    minLineLength=50,
-    maxLineGap=10
-)
+        # Adjust these area bounds based on your image resolution and flower size
+        if 40 < area < 200:
+            # Approximate the contour shape to smooth out jagged edges
+            peri = cv2.arcLength(contour, True)
+            approx = cv2.approxPolyDP(contour, 0.02 * peri, True)
 
-# 5. Count the straight edges
-if lines is not None:
-    line_count = len(lines)
-    print(f"Number of straight lines detected: {line_count}")
+            #separating petals in their own images
+            x, y, w, h = cv2.boundingRect(approx)
+            petal_crop = image[y-10:y + h + 10, x-10:x + w + 10]
+            petals.append(petal_crop)
 
-    # Optional: Draw the lines on the original image for visualization
-    for line in lines:
-        x1, y1, x2, y2 = line
-        cv2.line(image, (x1, y1), (x2, y2), (0, 0, 255), 2)
+            # Draw the detected petal contour in green
+            cv2.drawContours(petal_overlay, [approx], -1, (0, 255, 0), 2)
+            petal_count += 1
 
-    # Display the result
-    cv2.imshow('Detected Straight Edges', image)
+    print(f"Detected approximately {petal_count} petal-like regions.")
+
+    # 6. Display the results
+    #cv2.imshow('Original Image', image)
+    cv2.imshow('Canny Edges', edges)
+    cv2.imshow('Detected Petals', petal_overlay)
+    #cv2.imshow('Petal1', petals[0])
+    #cv2.imshow('Petal2', petals[1])
+    #cv2.imshow('Petal3', petals[2])
+    #cv2.imshow('Petal4', petals[3])
+    #cv2.imshow('Petal5', petals[4])
+    #cv2.imshow('Petal6', petals[5])
+
     cv2.waitKey(0)
     cv2.destroyAllWindows()
-else:
-    print("No straight lines found.")
+
+detect_origami_petals('petalDetection.jpg')
