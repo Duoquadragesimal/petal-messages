@@ -62,6 +62,24 @@ def detect_origami_petals(image_path):
                         cv2.drawContours(petal_overlay, [approx], -1, (0, 255, 0), 2)
                         petal_count += 1
 
+    #order the petals
+    combined_list = []
+    for i in range(5):
+        combined_list.append((petal_coords[i][0],petal_coords[i][1], petals[i]))
+
+    for i in range(5):
+        swapped = False
+        for j in range(0, 5 - i - 1):
+            if combined_list[j][1] > combined_list[j + 1][1]:
+                combined_list[j], combined_list[j + 1] = combined_list[j + 1], combined_list[j]
+                swapped = True
+        if not swapped:
+            break
+    if combined_list[1][0] > combined_list[2][0]:
+        combined_list[1], combined_list[2] = combined_list[2], combined_list[1]
+    if combined_list[3][0] > combined_list[4][0]:
+        combined_list[3], combined_list[4] = combined_list[4], combined_list[3]
+
     print(f"Detected approximately {petal_count} petal-like regions.")
 
     # 6. Display the results
@@ -80,5 +98,7 @@ def detect_origami_petals(image_path):
 
     cv2.waitKey(0)
     cv2.destroyAllWindows()
+
+
 
 detect_origami_petals('flowerCopy.png')
