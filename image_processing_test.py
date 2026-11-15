@@ -100,6 +100,8 @@ def detect_origami_petals(image):
     #cv2.imshow('Petal8', petals[7])
     #cv2.imshow('Petal9', petals[8])
 
+
+    cv2.waitKey(0)
     cv2.destroyAllWindows()
     return petals
 

@@ -42,9 +42,9 @@ df = pd.DataFrame()
 df["image"] = image_list
 df["label"] = label_list
 
-ratio = 0.50 #50% of data will be for testing
+ratio = 0.20
 train_df, test_df = train_test_split(df, test_size=ratio, stratify=df["label"], random_state=42)
-
+      
 print("\nTraining images:", len(train_df))
 print("Testing images:", len(test_df))
 
